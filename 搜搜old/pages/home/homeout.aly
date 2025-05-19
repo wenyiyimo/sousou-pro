@@ -1,0 +1,100 @@
+{
+  LinearLayout;
+  layout_height="fill";
+  layout_width="fill";
+  orientation="vertical";
+  {
+    ViewPager;
+    layout_height="fill";
+    layout_weight="1";
+    id="pagev";
+    layout_width="match_parent";
+  };
+  {
+    LinearLayout;
+    layout_width="match_parent";
+    --Elevation="0dp";
+    layout_height=ButtonStyles().height_big;
+    orientation="horizontal";
+    backgroundColor="#FFFFFFFF";--背景色
+    elevation=ElevationStyles().medium,--阴影层次
+    --第一个按钮
+    {
+      LinearLayout;
+      id="homeButton";
+      gravity="center";
+      layout_weight="1";
+      layout_marginLeft="0dp";
+      orientation="vertical";
+
+      {
+        ImageView;--影像视图
+        src="static/img/home/d1.png";
+        id="img1";
+        layout_height=ButtonStyles().height_tiny;--高度
+        layout_margin="20dp";
+        --layout_marginLeft="0dp";
+        layout_marginTop="5dp";--边顶
+        layout_width="30dp";--宽度
+        layout_gravity="center";
+        backgroundColor="#00000000";--背景色
+      };
+      {
+        TextView;
+        id="a1";
+        --layout_marginLeft="0";
+        layout_marginTop="-18dp";
+        gravity="center";
+        layout_height="-1";
+        layout_width="-1";
+        textColor='#FF000000';--文字颜色
+        layout_weight="1";
+        textSize="11sp",
+        -- Typeface=Typeface.DEFAULT_BOLD;--粗体
+        text="主页";
+        layout_gravity="center";
+      };
+    };
+
+    --第四个按钮
+    {
+      LinearLayout;
+      id="setButton";
+      gravity="center";
+      layout_weight="1";
+      layout_marginLeft="0dp";
+      orientation="vertical";
+
+      {
+        ImageView;--影像视图
+        src="static/img/home/d8.png";
+        id="img5";
+        layout_height=ButtonStyles().height_tiny;--高度
+        layout_margin="20dp";
+        --layout_marginLeft="0dp";
+        layout_marginTop="5dp";--边顶
+        layout_width="30dp";--宽度
+        layout_gravity="center";
+        backgroundColor="#00000000";--背景色
+        ColorFilter=ColorStyles().gray
+      };
+      {
+        TextView;
+        id="a5";
+        --layout_marginLeft="0";
+        layout_marginTop="-18dp";
+        gravity="center";
+        layout_height="-1";
+        layout_width="-1";
+        textColor='#FF000000';--文字颜色
+        layout_weight="1";
+        --  Typeface=Typeface.DEFAULT_BOLD;--粗体
+        textSize="11sp",
+        text="我的";
+        layout_gravity="center";
+      };
+    };
+
+  };
+
+};

@@ -1,0 +1,1668 @@
+import"xyz.doikki.videoplayer.player.AndroidMediaPlayerFactory"
+import "xyz.doikki.videoplayer.exo.ExoMediaPlayerFactory"
+
+import"xyz.doikki.videocontroller.StandardVideoController"
+import "xyz.doikki.videoplayer.ijk.IjkPlayerFactory"
+import"xyz.doikki.videoplayer.exo.ExoMediaPlayerFactory"
+import "xyz.doikki.videoplayer.player.BaseVideoView$OnStateChangeListener"
+
+
+
+pauseFlag = false
+fullScreenFlag = false
+prepared = false
+seekFlag = false
+controlFlag = false
+playRateFlag = false
+selectPlayFlag = false
+longClickFlag = false
+brightFlag = false
+progressFlag = false
+volumeFlag = false
+playRate = 1
+videoMode = 0
+videoDuration = 0
+playCurrent = 0
+skipStart = 0
+Hfullflag=true
+skipEnd = 0
+--isijk=false
+--factorySelect=false
+
+
+
+-- hisSkipFlag = true
+function getSeekNum()
+  local hisSeekNum = 0
+
+  if #historys > 0 and historys[1][3]['标题'] == search_data[2]['标题'] and
+    historys[1][3]['播放'] == play_name and videoDuration + 10000 > historys[1][3]['时长'] and videoDuration -
+    10000 < historys[1][3]['时长'] and videoDuration-historys[1][3]['进度'] >3000 then
+
+    hisSeekNum = historys[1][3]['进度']
+    if historys[1][3]["速度"] then
+      playRate=historys[1][3]["速度"]
+    end
+    -- hisSkipFlag = false
+
+  end
+  --  showToast(num.."...444".."..55555.."..hisSeekNum)
+
+  return math.max(skipStart, hisSeekNum)
+end
+
+rate_datas = {{"x0.50", 0.5}, {"x1.00", 1}, {"x1.25", 1.25}, {"x1.50", 1.5}, {"x1.75", 1.75}, {"x2.00", 2},
+  -- {"x2.50", 2.5}
+}
+
+function setPlayRate(num)
+  if prepared then
+    if isijk and num> 2 then
+      num=2
+    end
+    videoPlayer.setSpeed(num);
+
+
+    if num ~= 1 then
+      msgRateText.setText("x" .. tostring(num) .. "倍速")
+      if setting.showPlayRate or longclickflag then
+        msgRate.setVisibility(View.VISIBLE)
+       else
+        msgRate.setVisibility(View.GONE)
+      end
+     else
+      msgRate.setVisibility(View.GONE)
+    end
+  end
+end
+
+
+videoPlayRateout.setLayoutManager(StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL))
+rate_adapter = LuaCustRecyclerAdapter(AdapterCreator({
+  getItemCount = function()
+    return #rate_datas
+  end,
+  getItemViewType = function(position)
+    return 0
+  end,
+  onCreateViewHolder = function(parent, viewType)
+    local views = {}
+    holder = LuaCustRecyclerHolder(loadlayout(rateItem, views))
+    holder.view.setTag(views)
+    return holder
+  end,
+  onBindViewHolder = function(holder, position)
+    view = holder.view.getTag()
+    view.rate.text = rate_datas[position + 1][1]
+    if playRate == rate_datas[position + 1][2] then
+      view.rate.textColor = ColorStyles().blue
+     else
+      view.rate.textColor = ColorStyles().white
+    end
+
+    view.rate.onClick = function()
+      playRate = rate_datas[position + 1][2]
+      rate_adapter.notifyDataSetChanged()
+      setPlayRate(playRate)
+    end
+  end
+}))
+videoPlayRateout.setAdapter(rate_adapter)
+
+function 判断有无导航栏()
+  local hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
+  local hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+  if (!hasMenuKey && !hasBackKey) then
+    导航状态 = true;
+   else
+    导航状态 = false;
+  end
+  return 导航状态;
+end
+
+function 全屏()
+  window = activity.getWindow();
+  window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+  window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+  xpcall(function()
+    lp = window.getAttributes();
+    lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+    window.setAttributes(lp);
+  end,
+  function(e)
+  end)
+  activity.setTheme(android.R.style.Theme_Material_NoActionBar)
+end
+
+function 屏幕沉浸(color1, color2)
+
+  import("android.view.WindowManager")
+  activity.setTheme(android.R.style.Theme_Material_NoActionBar)
+  if Build.VERSION.SDK_INT < 21 then
+    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS).setStatusBarColor(0xff000000)
+   elseif 判断有无导航栏() then
+    activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS).setStatusBarColor(color1).setNavigationBarColor(color2)
+   else
+    activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS).setStatusBarColor(color1).setNavigationBarColor(color2)
+  end
+end
+
+function 消除虚拟按键()
+
+  activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+  this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+  if Build.VERSION.SDK_INT > 11 and Build.VERSION.SDK_INT < 19 then
+    activity.getWindow().getDecorView().setSystemUiVisibility(View.GONE)
+   elseif Build.VERSION.SDK_INT >= 19 then
+    activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+  end
+end
+
+
+
+
+function setPlayFullscreen()
+  --activity.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+
+  --activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+  body_dialog.dismiss()
+  local sparam = frame.getLayoutParams()
+  sparam.width = -1
+  sparam.height = -1
+  frame.setLayoutParams(sparam)
+  fullScreenFlag = true
+  -- activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+  -- activity.getWindow().getAttributes().layoutInDisplayCutoutMode = 1
+  -- activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+  activity.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+
+  全屏()
+  屏幕沉浸(0,0)
+  消除虚拟按键()
+
+  -- 防止手机休眠
+  activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+  autoRotate(videoWidth, videoHeight)
+
+  if controlFlag then
+    showFullControl()
+  end
+
+end
+
+function exitPlayFullscreen()
+  fullScreenFlag = false
+  playV.setVisibility(View.GONE)
+  playH.setVisibility(View.VISIBLE)
+
+  local sparam = frame.getLayoutParams()
+  sparam.height = height * 0.25
+  sparam.width = width
+  frame.setLayoutParams(sparam)
+  if isMobile then
+    activity.setRequestedOrientation(1) -- 0横屏，1竖屏
+   else
+    activity.setRequestedOrientation(0)
+  end
+  -- body_dialog.showAtLocation(view, Gravity.BOTTOM, 0, 0)
+  -- body_dialog.update(view, Gravity.BOTTOM, 0, 0)
+  task(200, function()
+    -- changeSurfaceSize(videoWidth, videoHeight)
+    body_dialog = getPopupWindow(body_layout)
+  end)
+  xpcall(function()
+    lp = window.getAttributes();
+    lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_NEVER;
+    window.setAttributes(lp);
+    end, function(e)
+  end)
+  --[=[  import "android.graphics.Color"  ]=]
+  local window = activity.getWindow()
+  window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+  --[=[  window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    window.setStatusBarColor(Color.BLACK)  ]=]
+  activity.getWindow().setStatusBarColor(0xff000000);
+  activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+  if controlFlag then
+    showView()
+  end
+  systemUtil.hideNavigationBar()
+end
+
+
+
+function setNetSpeed(id)
+  local function getNetSpeed(id)
+    require "import"
+    import "android.net.TrafficStats"
+    s = TrafficStats.getTotalRxBytes()
+
+    task(250, function()
+      id.text = (TrafficStats.getTotalRxBytes() - s) * 2 / 1000 .. "k/s"
+    end)
+  end
+  getNetSpeed(id)
+  -- timer(getNetSpeed,0,1000,id)
+end
+
+function dealPlayTime(time)
+  if time < 0 then
+    return "00:00"
+  end
+
+  local miao = tostring(tointeger(time * 0.001 % 60))
+  local fen = tostring(tointeger(time * 0.001 / 60))
+  if #miao == 1 then
+    miao = "0" .. miao
+  end
+  if #fen == 1 then
+    fen = "0" .. fen
+  end
+  return fen .. ":" .. miao
+end
+
+
+--
+--videoPlayer=videoPlayerExo
+
+
+
+--[[function startPlay(url)
+
+  -- if not seekNum then
+
+  -- end
+  --videoPlayer.stop()
+
+
+  prepared = false
+
+
+  videoPlayer.release()
+  if url:find("m3u8") and url:find("/搜搜/")then
+    factorySelect=true
+    videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+    isijk=false
+   else
+    if not factorySelect then
+      if setting.isijk then
+        -- videoPlayer.setPlayerFactory(IjkPlayerFactory.create())
+        isijk=true
+       else
+        --  videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+
+        isijk=false
+      end
+
+      playSetting= dataUtil.init({
+        site = search_datas[siteIndex][1]})
+      if playSetting.playFactory then
+
+        factorySelect=true
+        if playSetting.playFactory =="ijk" then
+          isijk=true
+          videoPlayer.setPlayerFactory(IjkPlayerFactory.create())
+         else
+          isijk=false
+          videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+        end
+       else
+        if isijk then
+          videoPlayer.setPlayerFactory(IjkPlayerFactory.create())
+         else
+
+          videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+        end
+      end
+    end
+
+
+
+  end
+  videoPlayer.setUrl(url)
+
+  videoPlayer.start()
+
+  videoPlayer.addOnStateChangeListener(OnStateChangeListener{
+    onPlayStateChanged=function(event)
+
+      if event== VideoView.STATE_IDLE then
+
+       elseif event==VideoView.STATE_PREPARING then
+
+
+       elseif event==VideoView.STATE_PREPARED then
+
+        playLoading.setVisibility(View.GONE)
+        if not pauseFlag then
+          playStart.setVisibility(View.GONE)
+          playPause.setVisibility(View.VISIBLE)
+        end
+        if prepared then
+
+         else
+          prepared = true
+          videoWidth = videoPlayer.getVideoSize()[0]
+          videoHeight = videoPlayer.getVideoSize()[1]
+          picture.text = "picture：" .. tostring(videoWidth) .. "x" .. tostring(videoHeight)
+          netWork.text=tostring(videoWidth) .. "x" .. tostring(videoHeight)
+          -- changeSurfaceSize(videoWidth, videoHeight)
+          videoDuration = videoPlayer.getDuration()
+          playDurationout.text = dealPlayTime(videoDuration)
+          seekbar.setMax(videoDuration)
+          progress.setMax(videoDuration)
+
+          if setting.autoFullScreen then
+            setPlayFullscreen()
+            if not controlFlag then
+              if setting.showPlayProgress then
+                progress.setVisibility(View.VISIBLE)
+              end
+            end
+          end
+          pauseFlag = false
+          playStart.setVisibility(View.GONE)
+          playPause.setVisibility(View.VISIBLE)
+          task(200, function()
+            --showToast(seekNum..".....222222")
+            seekNum = getSeekNum()
+
+            if seekNum > 0 then
+              --   showToast(seekNum)
+              videoPlayer.seekTo(seekNum)
+              seekNum=0
+            end
+            setPlayRate(playRate)
+          end)
+
+        end
+
+
+
+       elseif event==VideoView.STATE_PLAYING
+
+        --videoSize = videoView.videoSize
+        --  L.d("视频宽：" + videoSize[0])
+        --  L.d("视频高：" + videoSize[1])
+       elseif event== VideoView.STATE_PAUSED then
+
+       elseif event== VideoView.STATE_BUFFERING
+        playLoading.setVisibility(View.VISIBLE)
+       elseif event== VideoView.STATE_BUFFERED
+        playLoading.setVisibility(View.GONE)
+       elseif event== VideoView.STATE_PLAYBACK_COMPLETED
+
+
+        videoPlayer.release()
+        if prepared then
+          prepared = false
+          nextPlayVideo()
+        end
+
+       elseif event== VideoView.STATE_ERROR
+        if factorySelect then
+          factorySelect=false
+          --showToast("视频错误，已复制视频地址，请去浏览器查看。")
+          --systemUtil.copyContent(body_datas[listIndex][2][bodyIndex]['地址'],false)
+          -- videoPlayer.release()
+          if startsWith(body_datas[listIndex][2][bodyIndex]['地址'],"http")then
+            activity.newActivity("pages/webview/webview",{body_datas[listIndex][2][bodyIndex]['地址']})
+           else
+            showToast("视频错误，已复制视频地址，请去浏览器查看。")
+            systemUtil.copyContent(body_datas[listIndex][2][bodyIndex]['地址'],false)
+            videoPlayer.release()
+          end
+
+         else
+          factorySelect=true
+          -- showToast("解码失败，尝试更换解码方式...")
+          --videoPlayer.setVisibility(View.GONE)
+          --videoPlayerIjk.setVisibility(View.VISIBLE)
+          -- videoPlayer=videoPlayerIjk
+          videoPlayer.release()
+          if setting.isijk then
+            isijk=true
+            videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+           else
+            videoPlayer.setPlayerFactory(IjkPlayerFactory.create())
+            isijk=false
+          end
+
+
+          startPlay(url)
+        end
+      end
+    end,
+    onPlayerStateChanged=function(event)
+
+    end
+  })
+
+
+
+end]]
+
+
+
+function startPlay(url)
+  navWebFlag=false
+  -- if not seekNum then
+
+  -- end
+  --videoPlayer.stop()
+
+
+  prepared = false
+
+
+  videoPlayer.release()
+
+
+
+  playSetting= dataUtil.init({
+    site = search_datas[siteIndex][1]})
+  if playSetting.playFactory then
+
+
+    if playSetting.playFactory =="ijk" then
+
+      videoPlayer.setPlayerFactory(IjkPlayerFactory.create())
+     else
+
+      videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+    end
+   else
+
+
+    videoPlayer.setPlayerFactory(ExoMediaPlayerFactory.create())
+
+
+
+
+
+
+  end
+  videoPlayer.setUrl(url)
+
+  videoPlayer.start()
+
+  videoPlayer.addOnStateChangeListener(OnStateChangeListener{
+    onPlayStateChanged=function(event)
+
+      if event== VideoView.STATE_IDLE then
+
+       elseif event==VideoView.STATE_PREPARING then
+
+
+       elseif event==VideoView.STATE_PREPARED then
+
+        playLoading.setVisibility(View.GONE)
+        if not pauseFlag then
+          playStart.setVisibility(View.GONE)
+          playPause.setVisibility(View.VISIBLE)
+        end
+        if prepared then
+
+         else
+          prepared = true
+          videoWidth = videoPlayer.getVideoSize()[0]
+          videoHeight = videoPlayer.getVideoSize()[1]
+          picture.text = "picture：" .. tostring(videoWidth) .. "x" .. tostring(videoHeight)
+          netWork.text=tostring(videoWidth) .. "x" .. tostring(videoHeight)
+          -- changeSurfaceSize(videoWidth, videoHeight)
+          videoDuration = videoPlayer.getDuration()
+          playDurationout.text = dealPlayTime(videoDuration)
+          seekbar.setMax(videoDuration)
+          progress.setMax(videoDuration)
+
+          if setting.autoFullScreen then
+            setPlayFullscreen()
+            if not controlFlag then
+              if setting.showPlayProgress then
+                progress.setVisibility(View.VISIBLE)
+              end
+            end
+          end
+          pauseFlag = false
+          playStart.setVisibility(View.GONE)
+          playPause.setVisibility(View.VISIBLE)
+          task(200, function()
+            --showToast(seekNum..".....222222")
+            seekNum = getSeekNum()
+
+            if seekNum > 0 then
+              --   showToast(seekNum)
+              videoPlayer.seekTo(seekNum)
+              seekNum=0
+            end
+            setPlayRate(playRate)
+          end)
+
+        end
+
+
+
+       elseif event==VideoView.STATE_PLAYING
+
+        --videoSize = videoView.videoSize
+        --  L.d("视频宽：" + videoSize[0])
+        --  L.d("视频高：" + videoSize[1])
+       elseif event== VideoView.STATE_PAUSED then
+
+       elseif event== VideoView.STATE_BUFFERING
+        playLoading.setVisibility(View.VISIBLE)
+       elseif event== VideoView.STATE_BUFFERED
+        playLoading.setVisibility(View.GONE)
+       elseif event== VideoView.STATE_PLAYBACK_COMPLETED
+
+
+        videoPlayer.release()
+        if prepared then
+          prepared = false
+          nextPlayVideo()
+        end
+
+       elseif event== VideoView.STATE_ERROR
+        if navWebFlag then
+         else
+          navWebFlag=true
+          if startsWith(body_datas[listIndex][2][bodyIndex]['地址'],"http")then
+            videoPlayer.pause()
+            activity.newActivity("pages/webview/webview",{body_datas[listIndex][2][bodyIndex]['地址']})
+           else
+            showToast("视频错误，已复制视频地址，请去浏览器查看。")
+            systemUtil.copyContent(url,false)
+            systemUtil.copyContent(body_datas[listIndex][2][bodyIndex]['地址'],false)
+
+
+            videoPlayer.release()
+          end
+        end
+
+      end
+    end,
+    onPlayerStateChanged=function(event)
+
+    end
+  })
+
+
+
+end
+
+
+
+
+
+
+local function parseM3U8String(t, url)
+  local result = {}
+  local datas = {}
+  local netUrls = {}
+  local num = 0
+  -- print(t)
+  local startUrl, tag = url:match("(.-//.-)/(.-)/(.+)$")
+  local lastUrl = url:match("(.+)/(.+)$")
+
+  for v in ((t .. "\n")):gmatch("(.-)\n") do -- 取每一行
+
+    if v:find("%#EXT%-X%-KEY") then
+      secretUrl=v:match([[URI="(.-)"]])
+      --print(secretUrl)
+      if secretUrl and #secretUrl>2 and not startsWith(secretUrl,"http")then
+
+        if startsWith(secretUrl, "/") then
+          v=replace(v,[[URI="]]..secretUrl..[["]],[[URI="]]..lastUrl .. secretUrl..[["]])
+         else
+          v=replace(v,[[URI="]]..secretUrl..[["]],[[URI="]]..lastUrl .. "/"..secretUrl..[["]])
+
+          --secretUrl=lastUrl .. "/" .. secretUrl
+        end
+      end
+    end
+
+
+    --   v=replace(v,secretUrl,"")
+
+
+
+    table.insert(datas, v)
+    num = num + 1
+    if v:find("m3u8") or v:find("ts") then -- 发现了就把该行装入table
+      if startsWith(v, "http") then
+        table.insert(netUrls, {v, num})
+       else
+        if v:find(tag) then
+          if startsWith(v, "/") then
+            table.insert(netUrls, {startUrl .. v, num})
+           else
+            table.insert(netUrls, {startUrl .. "/" .. v, num})
+          end
+         else
+          if startsWith(v, "/") then
+            table.insert(netUrls, {lastUrl .. v, num})
+           else
+            table.insert(netUrls, {lastUrl .. "/" .. v, num})
+          end
+        end
+      end
+    end
+  end
+  return {datas, netUrls}, t:find("ts") ~= nil
+end
+
+
+function removeAD(result,html)
+
+  for k,v in pairs(result[2])do
+    result[1][v[2]]=v[1]
+  end
+
+
+  if html:find("%#EXT%-X%-DISCONTINUITY") then
+
+    local flag=true
+
+    newResult1={}
+    for k,v in pairs(result[1])do
+
+      if flag then
+        if v:find("%#EXT%-X%-DISCONTINUITY")then
+
+          lastV=result[1][k-1]
+          if not lastV:find("http") then
+            lastV=result[1][k-2]
+            if not lastV:find("http") then
+              lastV=result[1][k-3]
+            end
+          end
+          if not lastV:find("http") then
+            table.insert(newResult1,v)
+           else
+            local urlLength=#lastV
+            local spLength=#split(lastV,"/")
+            nextV=result[1][k+1]
+            if not nextV:find("http")then
+              nextV=result[1][k+2]
+              if not nextV:find("http")then
+                nextV=result[1][k+3]
+              end
+            end
+            if not nextV:find("http")then
+              table.insert(newResult1,v)
+             else
+
+              if #nextV <5+urlLength and #nextV >urlLength-5 and #split(nextV,"/")==spLength then
+                table.insert(newResult1,v)
+               else
+
+                flag=false
+                -- showToast("已跳过广告")
+              end
+            end
+
+          end
+
+         else
+          table.insert(newResult1,v)
+        end
+       else
+        if v:find("%#EXT%-X%-DISCONTINUITY")then
+
+          flag=true
+        end
+
+
+      end
+    end
+
+    newResult={}
+    for k,v in pairs(newResult1)do
+
+      if v:find("http") and v:find("ts")then
+        table.insert(newResult,{v,k})
+      end
+    end
+    return {newResult1,newResult}
+   else
+    --print(html)
+    return result
+  end
+end
+
+
+
+
+
+
+
+
+function initPlayer(url)
+  --startPlay(url)
+  -- showToast(url)
+  if url:find("m3u8")then
+
+    -- showToast("是m3u8")
+    Http.get(url, function(code, body)
+
+      if code == 200 and body:find("EXTM3U") then
+        --print(body)
+
+        --print(type(url:match("(.+)/.-")))
+
+
+        if pcall(function()
+
+            local result, types = parseM3U8String(body, url)
+
+
+            if types == true then
+              --print(dump(result[2]))
+              result=removeAD(result,body)
+              -- print(dump(result[1]))
+              -- task(50, function()
+
+
+              io.open("/sdcard/搜搜/index.m3u8", "w"):write(table.concat(result[1], "\n").."\n#EXT-X-ENDLIST\n"):close()
+
+              startPlay("/sdcard/搜搜/index.m3u8")
+
+              --end)
+             else
+              initPlayer(result[2][1][1])
+            end
+          end) then
+
+         else
+          --print( "m3u8下载失败")
+          --showToast("跳过广告失败")
+          startPlay(url)
+        end
+
+       else
+        -- showToast("获取m3u8文件失败")
+        startPlay(url)
+      end
+    end)
+
+   else
+    --showToast("不是m3u8")
+    startPlay(url)
+  end
+
+end
+
+-- 配置网络状态刷新函数
+function setNetworkState()
+  import "android.net.ConnectivityManager"
+  import "android.content.Context"
+  -- 判断WiFi网络连接
+  mWifi = activity.getSystemService(Context.CONNECTIVITY_SERVICE).getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+  if tostring(mWifi):find("none)") then
+    WiFi = 0
+   else
+    WiFi = 1
+  end
+  -- 判断数据网络连接
+  gprs = activity.getSystemService(Context.CONNECTIVITY_SERVICE).getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
+  .getState();
+  if tostring(gprs) == "CONNECTED" then
+    GPRS = 1
+   else
+    GPRS = 0
+  end
+  -- 判断网络连接状态
+  if (WiFi == 0 and GPRS == 1) then
+    netWork.setText('数据')
+   elseif (WiFi == 1 and GPRS == 0) then
+    netWork.setText('WiFi')
+   else
+    netWork.setText('异常')
+  end
+end
+-- 配置播放函数
+function Play()
+  if prepared then
+    videoPlayer.start()
+    pauseFlag = false
+    playStart.setVisibility(View.GONE)
+    playPause.setVisibility(View.VISIBLE)
+  end
+end
+
+-- 配置暂停函数
+function Pause()
+  -- 暂停视频
+  pauseFlag = true
+  videoPlayer.pause()
+  playPause.setVisibility(View.GONE)
+  playStart.setVisibility(View.VISIBLE)
+
+end
+-- 自动旋转视频
+function autoRotate(videoWidth, videoHeight)
+
+  if not videoWidth or videoWidth==0 then
+    -- showToast("视频未初始化完成！")
+
+    Hfullflag=true
+    playH.setVisibility(View.GONE)
+    playV.setVisibility(View.VISIBLE)
+
+    -- 将屏幕方向设置为横屏模式
+    if pcall(function()
+
+
+
+        activity.setRequestedOrientation(6)
+
+      end) then
+     else
+
+      activity.setRequestedOrientation(0)
+
+    end
+
+
+    return
+  end
+  -- 如果视频的宽度大于高度
+  if videoWidth > videoHeight then
+    Hfullflag=true
+    playH.setVisibility(View.GONE)
+    playV.setVisibility(View.VISIBLE)
+
+    -- 将屏幕方向设置为横屏模式
+    if pcall(function()
+
+
+
+        activity.setRequestedOrientation(6)
+
+      end) then
+     else
+
+      activity.setRequestedOrientation(0)
+
+    end
+   else
+    Hfullflag=false
+    skipPlayTime.setVisibility(View.GONE)
+    -- 将屏幕方向设置为竖屏模式
+    -- print(222222)
+    playH.setVisibility(View.VISIBLE)
+    playV.setVisibility(View.GONE)
+    activity.setRequestedOrientation(1)
+
+  end
+  task(200, function()
+    -- changeSurfaceSize(videoWidth, videoHeight)
+  end)
+end
+
+
+
+
+-- 定义设置电量显示的函数
+function setBattery()
+  -- 导入所需库
+  local Intent = luajava.bindClass "android.content.Intent"
+  local IntentFilter = luajava.bindClass "android.content.IntentFilter"
+  local BatteryManager = luajava.bindClass "android.os.BatteryManager"
+
+  -- 创建一个IntentFilter对象，指定过滤条件为ACTION_BATTERY_CHANGED
+  local filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+  -- 注册广播接收器，并获取包含电量信息的Intent对象
+  local intent = this.registerReceiver(nil, filter)
+  -- 获取电量信息
+  local Battery = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+
+  -- 定义电量百分比对应的图片和电量范围
+  local batteryTable = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110}
+  local img = {"static/img/play/dl10.png", "static/img/play/dl20.png", "static/img/play/dl30.png",
+    "static/img/play/dl40.png", "static/img/play/dl50.png", "static/img/play/dl60.png",
+    "static/img/play/dl70.png", "static/img/play/dl80.png", "static/img/play/dl90.png",
+    "static/img/play/dl100.png","static/img/play/dl100.png"}
+
+  -- 获取电池状态
+  local chargeState = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
+  -- 判断是否在充电
+  if chargeState == 2 then
+    batteryText.setText("⚡")
+    -- batteryout.background = loadbitmap(img[10])
+    batteryout.setImageBitmap(loadbitmap(img[10]))
+    -- 使用glide加载
+    -- Glide.with(activity).load(imgTable.battery.charging).into(battery)
+   else
+    -- 根据电量百分比设置相应的图片
+    for i, v in ipairs(batteryTable) do
+      if batteryTable[i + 1] ~= nil then
+
+        if Battery and Battery >= v and Battery < batteryTable[i + 1] then
+          batteryout.setImageBitmap(loadbitmap(img[i]))
+          batteryText.setText(tostring(Battery))
+          -- batteryout.background = loadbitmap(img[i])
+         else
+          batteryout.setImageBitmap(loadbitmap(img[10]))
+          batteryText.setText(tostring("--"))
+        end
+      end
+    end
+  end
+end
+
+
+
+import "android.content.BroadcastReceiver"
+import "android.content.Context"
+import "android.content.Intent"
+import "android.content.IntentFilter"
+import "android.graphics.Canvas"
+import "android.graphics.Color"
+import "android.graphics.Paint"
+import "android.graphics.Rect"
+import "android.graphics.RectF"
+import "android.os.BatteryManager"
+import "android.util.AttributeSet"
+import "android.util.Log"
+import "android.view.View"
+
+function BatteryView()
+
+  myLuaDrawable=LuaDrawable(function(canvas,mPaint,mDrawable)
+    --计算半径
+    local mMargin = 5; -- //电池内芯与边框的距离
+    local mBoder = 4; --//电池外框的宽带
+    local mWidth = 70; -- //主体外框总长
+    local mHeight = 40; --//主体总高
+    local mHeadWidth = 5; --//头部宽度
+    local mHeadHeight = 10; --//头部高度
+
+    local mMainRect=RectF(10,10,mWidth,mHeight) -- //主体区域方位
+    local mHeadRect=Rect(mWidth,(mHeight-mHeadHeight),mWidth+mHeadWidth,mHeight-mHeadHeight*2) --//头部区域方位
+    local mRadius = 5 --圆角
+    local mPower;
+
+    local mIsCharging; --//是否在充电
+
+
+    local filter =IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+    local intent =this.registerReceiver(nil,filter)
+    local mPower = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+    local 当前电量状态 = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
+    local mIsCharging=(当前电量状态==2)
+    return function(canvas)
+      local paint1 = Paint();
+      --画外框
+      paint1.setStyle(Paint.Style.STROKE); --设置空心矩形
+      paint1.setStrokeWidth(mBoder); --设置边框宽度
+      paint1.setColor(Color.WHITE);
+      canvas.drawRoundRect(mMainRect, mRadius, mRadius, paint1);
+
+      --画电池头
+      paint1.setStyle(Paint.Style.FILL); --实心
+      paint1.setColor(Color.WHITE);
+      canvas.drawRect(mHeadRect, paint1);
+
+      --  canvas.drawCircle(mHeight+math.cos(math.rad(jd))*mHeight,mWidth-math.sin(math.rad(jd))*mWidth,mWidth,mPaint)
+
+
+
+
+      --画电池芯
+      local paint = Paint();
+      if (mIsCharging)
+        paint.setColor(Color.GREEN);
+       else
+        if (mPower < 20)
+          paint.setColor(Color.RED);
+         else
+          paint.setColor(Color.WHITE);
+        end
+      end
+
+      local width = (mPower /100* (mMainRect.width() - mMargin*2));
+      local left = (mMainRect.left + mMargin );
+      local right = (mMainRect.left + mMargin + width);
+      local top = (mMainRect.top + mMargin);
+      local bottom = (mMainRect.bottom - mMargin);
+      local rect = Rect(left,top,right, bottom);
+      canvas.drawRect(rect, paint);
+
+
+      --画数字
+      local mPaint2=Paint()
+      mPaint2.setColor(0xff227CEA)
+      --mPaint2.setColor(0xffffffff)
+      mPaint2.setAntiAlias(true)
+      mPaint2.setStrokeWidth(mWidth/2)
+      mPaint2.setStyle(Paint.Style.FILL)
+      mPaint2.setTextAlign(Paint.Align.CENTER)
+      mPaint2.setTextSize(mHeight/1.8)
+
+      canvas.drawText(tostring(mPower),mHeight,mWidth/2,mPaint2);
+
+    end
+  end)
+  batteryText.background=myLuaDrawable
+end
+
+
+
+function updateVideoProgress()
+  setNetSpeed(netWorkText)
+  --pcall(function()
+
+  --setNetworkState()
+  -- end)
+  if prepared then
+    seekbar.setSecondaryProgress(videoPlayer.getBufferedPosition())
+    progress.setSecondaryProgress(videoPlayer.getBufferedPosition())
+    if controlFlag then
+      --setNetworkState()
+      nowTimeout.text = os.date("%H:%M")
+      task(100,BatteryView)
+    end
+    if videoPlayer.isPlaying() then
+      playCurrent = videoPlayer.getCurrentPosition()
+      playCurrentout.text = dealPlayTime(playCurrent)
+      seekbar.setProgress(playCurrent)
+      progress.setProgress(playCurrent)
+
+      if prepared and playCurrent > skipEnd and skipEnd > 0 then
+        videoPlayer.release()
+        prepared = false
+        showToast("跳过片尾...")
+        nextPlayVideo()
+      end
+
+      if playCurrent % 10 == 0 and playCurrent>3000 then
+        local temp = search_datas[siteIndex]
+        temp[3] = {
+          ["标题"] = temp[2]["标题"],
+          ["播放"] = play_name,
+          ['进度'] = playCurrent,
+          ['时长'] = videoDuration,
+          ["速度"]=playRate
+        }
+        task(100,function()
+          historys = historyUtil.setHistory(temp)
+        end)
+        hisout.setText("历史：" .. play_name .. " " .. dealPlayTime(historys[1][3]["进度"]))
+      end
+    end
+   else
+  end
+  task(500, function()
+    updateVideoProgress()
+  end)
+end
+
+updateVideoProgress()
+
+
+
+
+
+function showFullControl()
+  controlFlag = true
+  videoHead.setVisibility(View.VISIBLE)
+  videoFoot.setVisibility(View.VISIBLE)
+  progress.setVisibility(View.GONE)
+  -- batteryout.setVisibility(View.VISIBLE)
+  batteryText.setVisibility(View.VISIBLE)
+  nowTimeout.setVisibility(View.VISIBLE)
+  selectPlayMode.setVisibility(View.VISIBLE)
+  selectPlayout.setVisibility(View.VISIBLE)
+  selectPlayrateout.setVisibility(View.VISIBLE)
+  playH.setVisibility(View.GONE)
+  playV.setVisibility(View.VISIBLE)
+  if Hfullflag then
+    skipPlayTime.setVisibility(View.VISIBLE)
+   else
+    skipPlayTime.setVisibility(View.GONE)
+  end
+end
+function hideFullControl()
+  controlFlag = false
+  -- controlFlag = false
+  videoHead.setVisibility(View.GONE)
+  videoFoot.setVisibility(View.GONE)
+  if setting.showPlayProgress then
+    progress.setVisibility(View.VISIBLE)
+  end
+end
+
+function showView()
+  controlFlag = true
+  videoHead.setVisibility(View.VISIBLE)
+  videoFoot.setVisibility(View.VISIBLE)
+  progress.setVisibility(View.GONE)
+  skipPlayTime.setVisibility(View.GONE)
+  -- batteryout.setVisibility(View.GONE)
+  batteryText.setVisibility(View.GONE)
+  nowTimeout.setVisibility(View.GONE)
+  selectPlayMode.setVisibility(View.GONE)
+  selectPlayout.setVisibility(View.GONE)
+  selectPlayrateout.setVisibility(View.GONE)
+  playV.setVisibility(View.GONE)
+  playH.setVisibility(View.VISIBLE)
+
+end
+
+function hideView()
+  controlFlag = false
+  videoHead.setVisibility(View.GONE)
+  videoFoot.setVisibility(View.GONE)
+  progress.setVisibility(View.GONE)
+end
+showView()
+hideView()
+msgRate.setVisibility(View.GONE)
+msgBox.setVisibility(View.GONE)
+
+function dealNumber(num)
+
+  if num < 0 then
+    return "0%"
+   elseif num > 100 then
+    return "100%"
+   else
+    return tostring(tointeger(num)) .. "%"
+  end
+end
+function setLight()
+  msgBoxText.setText("亮度：" .. tostring(dealNumber(controlNum)))
+  msgBox.setVisibility(View.VISIBLE)
+  if controlNum < 0 then
+    systemUtil.setScreenBrightness(0)
+   elseif controlNum > 100 then
+    systemUtil.setScreenBrightness(100)
+   else
+    systemUtil.setScreenBrightness(controlNum)
+  end
+end
+
+function setVolume(num)
+  msgBoxText.setText("音量：" .. dealNumber(num))
+  msgBox.setVisibility(View.VISIBLE)
+  if num < 0 then
+    systemUtil.setVolume(0)
+   elseif num > 100 then
+    systemUtil.setVolume(100)
+   else
+    systemUtil.setVolume(num)
+  end
+end
+
+mOnGestureListener = GestureDetector.OnGestureListener({
+  onDown = function(v)
+    positionX = v.getX()
+    positionY = v.getY()
+    controlNum = 0
+    return true
+  end,
+  onFling = function(a, b, c, d)
+
+  end,
+  onLongPress = function(v)
+    if videoPlayer.isPlaying() then
+      task(100, function()
+        longClickFlag = true
+        setPlayRate(2)
+      end)
+    end
+  end,
+  onScroll = function(a, b, c, d)
+    if #trueUrl > 0 and not longClickFlag then
+      tarX = b.getX()
+      tarY = b.getY()
+      diffX = tarX - positionX
+      diffY = tarY - positionY
+      if positionX < 0.5 * activity.width then
+        if brightFlag then
+          controlNum = controlNum + d / 30
+          setLight(controlNum)
+         elseif progressFlag then
+          msgBoxText.setText("跳转至" .. dealPlayTime(playCurrent + (b.getX() - positionX) * 100))
+          msgBox.setVisibility(View.VISIBLE)
+         else
+          if math.abs(diffX) > math.abs(diffY) then
+            progressFlag = true
+            msgBoxText.setText("跳转至" .. dealPlayTime(playCurrent + (b.getX() - positionX) * 100))
+            msgBox.setVisibility(View.VISIBLE)
+           else
+            brightFlag = true
+            controlNum = systemUtil.getScreenBrightness() + d / 30
+            setLight(controlNum)
+          end
+        end
+       elseif positionX > 0.5 * activity.width then
+        if volumeFlag then
+          controlNum = controlNum + d / 30
+          setVolume(controlNum)
+         elseif progressFlag then
+          msgBoxText.setText("跳转至" .. dealPlayTime(playCurrent + (b.getX() - positionX) * 100))
+          msgBox.setVisibility(View.VISIBLE)
+         else
+          if math.abs(diffX) > math.abs(diffY) then
+            progressFlag = true
+            msgBoxText.setText("跳转至" .. dealPlayTime(playCurrent + (b.getX() - positionX) * 100))
+            msgBox.setVisibility(View.VISIBLE)
+           else
+            volumeFlag = true
+            -- showToast(systemUtil.getVolume())
+            controlNum = systemUtil.getVolume() + d / 30
+            setVolume(controlNum)
+          end
+        end
+      end
+    end
+    return true
+  end,
+  onShowPress = function(v)
+
+    return true
+  end,
+  onSingleTapUp = function(v)
+
+    return true
+  end
+})
+
+mOnDoubleTapListener = GestureDetector.OnDoubleTapListener({
+  onSingleTapConfirmed = function(v)
+    if fullScreenFlag then
+      if playRateFlag then
+        playRateFlag = false
+        videoPlayRateout.setVisibility(View.GONE)
+       elseif selectPlayFlag then
+        selectPlayFlag = false
+        body_dialog.dismiss()
+       elseif controlFlag then
+        hideFullControl()
+       else
+        showFullControl()
+      end
+     else
+      if playRateFlag then
+        playRateFlag = false
+        videoPlayRateout.setVisibility(View.GONE)
+       elseif selectPlayFlag then
+        selectPlayFlag = false
+        body_dialog.dismiss()
+       elseif controlFlag then
+        hideView()
+       else
+        if trueUrl and #trueUrl > 0 then
+          showView()
+         else
+          showToast("没有正在播放的视频或视频嗅探未完成！")
+        end
+
+      end
+    end
+    return true
+  end,
+  onDoubleTap = function(v)
+    if prepared then
+      if not pauseFlag then
+        Pause()
+       else
+        Play()
+      end
+    end
+    return true
+  end,
+  onDoubleTapEvent = function(v)
+    return true
+  end
+})
+
+videoControl.setLongClickable(true) -- 设置可触摸
+videoControl.setClickable(true) -- 设置可触摸
+
+mytouch = GestureDetector(activity, mOnGestureListener).setOnDoubleTapListener(mOnDoubleTapListener)
+videoControl.onTouch = function(view, event)
+  mytouch.onTouchEvent(event)
+  local ACTION = event.getAction()
+  if ACTION == MotionEvent.ACTION_DOWN then
+   elseif ACTION == MotionEvent.ACTION_MOVE then
+    if longClickFlag and fullScreenFlag then
+      local rawy = event.getRawY()
+      local height = activity.height / 5
+      if rawy < height then
+        setPlayRate(1.5)
+       elseif height < rawy and rawy < height * 2 then
+        setPlayRate(2)
+       elseif 2 * height < rawy and rawy < height * 3 then
+        setPlayRate(3)
+       elseif 3*height<rawy and rawy<height*4 then
+        setPlayRate(4)
+       elseif 4*height<rawy and rawy<height*5 then
+        setPlayRate(5)
+      end
+    end
+   elseif ACTION == MotionEvent.ACTION_UP then
+
+    if (longClickFlag) then
+      longClickFlag = false
+      setPlayRate(playRate)
+    end
+    if progressFlag then
+      progressFlag = false
+      if playCurrent + diffX * 100 < 0 then
+        videoPlayer.seekTo(0)
+       elseif playCurrent + diffX * 100 > videoPlayer.getDuration() then
+        playCurrentout.text = dealPlayTime(videoDuration)
+        videoPlayer.seekTo(videoDuration)
+       else
+        playCurrentout.text = dealPlayTime(playCurrent + diffX * 100)
+        videoPlayer.seekTo(playCurrent + diffX * 100)
+      end
+    end
+    if brightFlag then
+      brightFlag = false
+    end
+    if volumeFlag then
+      volumeFlag = false
+    end
+    msgBox.setVisibility(View.GONE)
+  end
+end
+
+selectPlayrateout.onClick = function()
+  videoPlayRateout.setVisibility(View.VISIBLE)
+
+  hideFullControl()
+  playRateFlag = true
+end
+
+playH.onClick = function()
+  --if not videoWidth or videoWidth == 0 then
+  -- showToast("视频未初始化完成！")
+  --return
+  --end
+  if fullScreenFlag then
+    Hfullflag=true
+    playH.setVisibility(View.GONE)
+    playV.setVisibility(View.VISIBLE)
+    skipPlayTime.setVisibility(View.VISIBLE)
+
+    if pcall(function()
+
+
+
+        activity.setRequestedOrientation(6)
+
+      end) then
+     else
+
+      activity.setRequestedOrientation(0)
+
+    end
+
+    task(200,function()
+      -- print(2222)
+      -- changeSurfaceSize(videoWidth,videoHeight)
+    end)
+
+
+   else
+    setPlayFullscreen()
+  end
+end
+
+
+
+
+playV.onClick=function()
+  Hfullflag=false
+  activity.setRequestedOrientation(1)
+  playH.setVisibility(View.VISIBLE)
+  playV.setVisibility(View.GONE)
+  task(200,function()
+    -- print(1111)
+    skipPlayTime.setVisibility(View.GONE)
+    -- changeSurfaceSize(videoWidth,videoHeight)
+  end)
+
+end
+
+
+
+
+playPause.onClick = function()
+
+  Pause()
+
+end
+
+playStart.onClick = function()
+  Play()
+end
+
+seekbar.setOnSeekBarChangeListener {
+  onStartTrackingTouch = function()
+    seekFlag = true
+  end,
+  onProgressChanged = function(a, i)
+    if seekFlag then
+
+      msgBoxText.setText("跳转至" .. dealPlayTime(i))
+      msgBox.setVisibility(View.VISIBLE)
+    end
+    -- ti.stop()
+    -- Toast.makeText(activity, tostring(i),Toast.LENGTH_SHORT).show()
+  end,
+
+  -- mediaPlayer.seekTo(math.floor(i))
+  -- end
+  onStopTrackingTouch = function(m)
+    seekFlag = false
+    playCurrentout.text = dealPlayTime(math.floor(m.getProgress()))
+    msgBox.setVisibility(View.GONE)
+    videoPlayer.seekTo(math.floor(m.getProgress()))
+  end
+}
+
+
+
+selectPlayMode.onClick = function()
+  if videoMode == 0 then
+    videoMode = 1
+    videoPlayer.setScreenScaleType(VideoView.SCREEN_SCALE_MATCH_PARENT)
+   elseif videoMode == 1 then
+
+    videoMode = 2
+    videoPlayer.setScreenScaleType(VideoView.SCREEN_SCALE_ORIGINAL)
+   elseif videoMode == 2 then
+    videoMode = 3
+    videoPlayer.setScreenScaleType(VideoView.SCREEN_SCALE_CENTER_CROP)
+   elseif videoMode == 3 then
+    videoMode = 4
+
+    videoPlayer.setScreenScaleType(VideoView.SCREEN_SCALE_16_9)
+
+   elseif videoMode == 4 then
+    videoMode = 5
+    videoPlayer.setScreenScaleType(VideoView.SCREEN_SCALE_4_3)
+   elseif videoMode == 5 then
+    videoMode = 0
+    videoPlayer.setScreenScaleType(VideoView.SCREEN_SCALE_DEFAULT)
+  end
+
+  -- changeSurfaceSize(videoWidth, videoHeight)
+end
+
+msgRate.onClick = function()
+  playRate = 1
+  rate_adapter.notifyDataSetChanged()
+  setPlayRate(playRate)
+end
+
+function formatTime(num)
+  local miao = tostring(tointeger(num * 0.001 % 60))
+  if #miao == 1 then
+    miao = "0" .. miao
+  end
+  local fen = tostring(tointeger(num * 0.001 / 60))
+  if #fen == 1 then
+    fen = "0" .. fen
+  end
+  return fen .. ":" .. miao
+end
+
+playStartout.onClick = function()
+  if playCurrent < 600000 then
+    skipStart = playCurrent
+    playStartout.setText("片头：" .. formatTime(skipStart))
+    showToast("已设置片头" .. formatTime(skipStart))
+   else
+    showToast("片头不能大于10分钟！")
+  end
+
+end
+
+playEndout.onClick = function()
+  if videoDuration - playCurrent < 600000 then
+    skipEnd = playCurrent
+    playEndout.setText("片尾：" .. formatTime(skipEnd))
+    showToast("已设置片尾" .. formatTime(skipEnd))
+   else
+    showToast("片尾不能大于10分钟！")
+  end
+
+end
+
+playStartout.onLongClick = function()
+  skipStart = 0
+  playStartout.setText("片头：00:00")
+  showToast("已重置片头时间！")
+end
+
+playEndout.onLongClick = function()
+  skipEnd = 0
+  playEndout.setText("片尾：00:00")
+  showToast("已重置片尾时间！")
+
+end
+selectPlayout.onClick = function()
+
+  selectPlayFlag = true
+  hideView()
+  hideFullControl()
+  body_dialog = getPopupWindow(body_layout, true)
+
+end
+
+
+
+
+function onKeyDown(code, event) -- 返回键监听
+  if string.find(tostring(event), "KEYCODE_BACK") ~= nil then
+    if fullScreenFlag then
+
+      if playRateFlag then
+        playRateFlag = false
+        videoPlayRateout.setVisibility(View.GONE)
+       elseif selectPlayFlag then
+        selectPlayFlag = false
+        body_dialog.dismiss()
+
+      end
+      exitPlayFullscreen()
+
+     else
+
+      activity.finish()
+    end
+    return true
+  end
+
+end
+
+
+goBack.onClick = function()
+  if fullScreenFlag then
+    exitPlayFullscreen()
+   else
+    XLTaskHelper.instance().stopTask(taskId)
+    stopFtp()
+    activity.finish()
+  end
+end
+
+
+function onPause()
+  isPlayingWhenDestroyed = videoPlayer.isPlaying()
+  if isPlayingWhenDestroyed then
+    Pause()
+  end
+end
+function onStart()
+
+  if isPlayingWhenDestroyed then
+    Play()
+  end
+
+
+  if fullScreenFlag then
+
+    task(50, function()
+
+      activity.setTheme(android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+
+      全屏()
+      屏幕沉浸(0,0)
+      消除虚拟按键()
+
+      -- changeSurfaceSize(videoWidth, videoHeight)
+
+    end)
+  end
+
+end
+function onDestroy()
+  videoPlayer.release()
+  stopFtp()
+  XLTaskHelper.instance().stopTask(taskId)
+
+
+  if File("/sdcard/Download/搜搜/download").exists() and getFolderSize("/sdcard/Download/搜搜/download") >
+    500 then
+    os.execute("rm -rf /sdcard/Download/搜搜/download")
+    File("/sdcard/Download/搜搜/download").mkdirs()
+   else
+    File("/sdcard/Download/搜搜/download").mkdirs()
+  end
+
+
+
+  if webView2 then
+
+    webView2.stopLoading()
+    webView2.getSettings().setJavaScriptEnabled(false);
+    webView2.clearHistory();
+    webView2.clearView();
+    webView2.removeAllViews();
+    webView2.destroy()
+    import"com.sousou.utils.CacheUtils"
+
+    CacheUtils().clearCache(this)
+
+
+  end
+
+
+
+  -- if cache then
+  -- cache.release()
+  -- end
+end
+import "pages.play.dlna"
+

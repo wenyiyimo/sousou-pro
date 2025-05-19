@@ -1,0 +1,611 @@
+{
+  LinearLayout;
+  layout_height="match_parent";
+  layout_width="match_parent";
+  orientation="vertical";
+  backgroundColor="#ffffffff",--卡片背景色
+
+  {
+    LinearLayout,
+    layout_width = "fill",
+    layout_height = ButtonStyles().height_large,
+    gravity = "center",
+    elevation=ElevationStyles().medium,--阴影层次
+    {
+      TextView,
+      id = "bt",
+      text = "设置-setting",
+      textSize = TextStyles().large_little,
+      gravity = "center",
+      layout_weight = "1",
+      textColor=ColorStyles().blue,
+      --Typeface=Typeface.DEFAULT_BOLD;
+      Typeface=Typeface.createFromFile(File(activity.getLuaDir().."/static/font/font.ttf"));
+    }
+  },
+
+
+
+  {
+    ScrollView,--纵向滑动控件
+    layout_width="fill",--布局宽度
+    layout_height="fill",--布局高度
+    overScrollMode=View.OVER_SCROLL_NEVER,--隐藏圆弧阴影
+    verticalScrollBarEnabled=false,--隐藏纵向滑条
+    {
+      LinearLayout,--线性布局
+
+      -- layout_marginTop="10dp",--布局顶距
+      orientation="vertical",--布局方向
+      layout_width="fill",--布局宽度
+      layout_height="fill",--布局高度
+      {
+        LinearLayout,
+        layout_width = "fill",
+        layout_height = "wrap",
+        gravity = "center",
+        orientation = "horizontal",
+        layout_margin=MarginStyles().medium,
+        layout_marginTop=0,
+        {
+          MaterialCardView,
+          layout_weight="1",
+          layout_height=ButtonStyles().height_2large,
+          radius="10dp",
+          elevation = ElevationStyles().medium,
+          layout_margin=MarginStyles().small,
+          -- layout_marginRight=0,
+          id="his_card",
+          cardBackgroundColor="#ffffffff",--卡片背景色
+          {
+            LinearLayout,
+            orientation = "horizontal",
+            layout_width = "-1",
+            layout_height = "-1",
+            layout_marginLeft = "5dp",
+            {
+              MaterialCardView,
+              layout_gravity = "center",
+              layout_width = "30dp",
+              layout_height = "45dp",
+              layout_margin = "8dp",
+              cardElevation = "1.1dp",
+
+              radius = "5dp",
+              {
+                ImageView,
+                layout_height = "-1",
+                layout_width = "-1",
+                scaleType = "centerCrop",
+                id = "his1",
+                src = "static/img/set/w.png"
+              }
+            },
+            {
+              MaterialCardView,
+              layout_gravity = "center",
+              layout_width = "30dp",
+              layout_height = "30dp",
+              layout_marginTop = "7.5dp",
+              layout_marginLeft = "-20dp",
+              cardElevation = "1dp",
+
+              radius = "5dp",
+              {
+                ImageView,
+                layout_height = "-1",
+                layout_width = "-1",
+                scaleType = "centerCrop",
+                id = "his2",
+                src = "static/img/set/w.png"
+              }
+            },
+            {
+              LinearLayout,
+              orientation = "vertical",
+              layout_width = "-2",
+              layout_height = "-2",
+              layout_margin = "3dp",
+              layout_weight = "1",
+              layout_gravity = "center",
+              {
+                TextView,
+                layout_gravity = "center",
+                text = "看过",
+                layout_margin = "3dp",
+                Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+                textSize = TextStyles().medium,
+                textColor=ColorStyles().black,
+              },
+              {
+                TextView,
+                id = "his_num",
+                text = "共0部",
+                layout_gravity = "center",
+                layout_margin = "3dp",
+                Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+                textSize = TextStyles().small,
+                --  textColor = ColorStyles().gray
+
+              }
+            }
+          }
+        },
+        {
+          MaterialCardView,
+          layout_weight="1",
+          layout_height=ButtonStyles().height_2large,
+          radius="10dp",
+          layout_margin=MarginStyles().small,
+          elevation = ElevationStyles().medium,
+          --layout_marginRight=0,
+          id="heart_card",
+          cardBackgroundColor="#ffffffff",--卡片背景色
+          {
+            LinearLayout,
+            orientation = "horizontal",
+            layout_width = "-1",
+            layout_height = "-1",
+            layout_marginLeft = "5dp",
+            {
+              MaterialCardView,
+              layout_gravity = "center",
+              layout_width = "30dp",
+              layout_height = "45dp",
+              layout_margin = "8dp",
+              cardElevation = "1.1dp",
+
+              radius = "5dp",
+              {
+                ImageView,
+                layout_height = "-1",
+                layout_width = "-1",
+                scaleType = "centerCrop",
+                id = "heart1",
+                src = "static/img/set/w.png"
+              }
+            },
+            {
+              MaterialCardView,
+              layout_gravity = "center",
+              layout_width = "30dp",
+              layout_height = "30dp",
+              layout_marginTop = "7.5dp",
+              layout_marginLeft = "-20dp",
+              cardElevation = "1dp",
+
+              radius = "5dp",
+              {
+                ImageView,
+                layout_height = "-1",
+                layout_width = "-1",
+                scaleType = "centerCrop",
+                id = "heart2",
+                src = "static/img/set/w.png"
+              }
+            },
+            {
+              LinearLayout,
+              orientation = "vertical",
+              layout_width = "-2",
+              layout_height = "-2",
+              layout_margin = "3dp",
+              layout_weight = "1",
+              layout_gravity = "center",
+              {
+                TextView,
+                layout_gravity = "center",
+                text = "收藏",
+                layout_margin = "3dp",
+                Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+                textSize = TextStyles().medium,
+                textColor=ColorStyles().black,
+              },
+              {
+                TextView,
+                id = "heart_num",
+                text = "共0部",
+                layout_gravity = "center",
+                layout_margin = "3dp",
+                Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+                textSize = TextStyles().small,
+                -- textColor = ColorStyles().gray
+
+              }
+            }
+          }
+        },
+
+
+        {
+          MaterialCardView,
+          layout_weight="1",
+          layout_height=ButtonStyles().height_2large,
+          radius="10dp",
+          layout_margin=MarginStyles().small,
+          elevation = ElevationStyles().medium,
+          id="down_card",
+          cardBackgroundColor="#ffffffff",--卡片背景色
+          {
+            LinearLayout,
+            orientation = "horizontal",
+            layout_width = "-1",
+            layout_height = "-1",
+            layout_marginLeft = "5dp",
+            {
+              MaterialCardView,
+              layout_gravity = "center",
+              layout_width = "30dp",
+              layout_height = "45dp",
+              layout_margin = "8dp",
+              cardElevation = "1.1dp",
+
+              radius = "5dp",
+              {
+                ImageView,
+                layout_height = "-1",
+                layout_width = "-1",
+                scaleType = "centerCrop",
+                id = "down1",
+                src = "static/img/set/w.png"
+              }
+            },
+            {
+              MaterialCardView,
+              layout_gravity = "center",
+              layout_width = "30dp",
+              layout_height = "30dp",
+              layout_marginTop = "7.5dp",
+              layout_marginLeft = "-20dp",
+              cardElevation = "1dp",
+
+              radius = "5dp",
+              {
+                ImageView,
+                layout_height = "-1",
+                layout_width = "-1",
+                scaleType = "centerCrop",
+                id = "down2",
+                src = "static/img/set/w.png"
+              }
+            },
+            {
+              LinearLayout,
+              orientation = "vertical",
+              layout_width = "-2",
+              layout_height = "-2",
+              layout_margin = "3dp",
+              layout_weight = "1",
+              layout_gravity = "center",
+              {
+                TextView,
+                layout_gravity = "center",
+                text = "下载",
+                layout_margin = "3dp",
+                Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+                textSize = TextStyles().medium,
+                textColor=ColorStyles().black,
+              },
+              {
+                TextView,
+                id = "down_num",
+                text = "共0部",
+                layout_gravity = "center",
+                layout_margin = "3dp",
+                Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+                textSize = TextStyles().small,
+                -- textColor = ColorStyles().gray
+
+              }
+            }
+          }
+        }
+
+
+
+      },
+      {
+        MaterialCardView,
+        layout_gravity = "center",
+        layout_width = "fill",
+        layout_height = "wrap",
+        layout_margin=MarginStyles().medium,
+        cardElevation = "1dp",
+        cardBackgroundColor="#ffffffff",--卡片背景色
+        radius = "5dp",
+        {
+          LinearLayout,
+          orientation = "vertical",
+          layout_width = "fill",
+          layout_height = "wrap",
+          layout_margin=MarginStyles().medium,
+          {
+            TextView,
+            text = "管理本地源",
+            layout_margin =MarginStyles().tiny ,
+            layout_marginBottom=0,
+            layout_width="fill",
+            id="navMySite",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+          },
+          {
+            TextView,
+            text = "写站源、排序、停用、删除等",
+            layout_margin =MarginStyles().tiny ,
+            layout_marginTop =0,
+            layout_width="fill",
+            id="navMySiteout",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().medium,
+            -- textColor = ColorStyles().gray
+          },
+          {
+            TextView,
+            text = "远程订阅",
+            layout_marginTop =MarginStyles().medium,
+            layout_margin =MarginStyles().tiny,
+            layout_marginBottom=0,
+            layout_width="fill",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+            id="navRemote",
+          },
+          {
+            TextView,
+            text = "可以设置同步远程源，自动更新!",
+            layout_margin =MarginStyles().tiny ,
+            layout_marginTop =0,
+            id="navRemoteout",
+            layout_width="fill",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().medium,
+            --textColor = ColorStyles().gray
+          },
+        }
+      },
+      {
+        MaterialCardView,
+        layout_gravity = "center",
+        layout_width = "fill",
+        layout_height = "wrap",
+        layout_margin=MarginStyles().medium,
+        cardElevation = "1dp",
+        cardBackgroundColor="#ffffffff",--卡片背景色
+        radius = "5dp",
+        {
+          LinearLayout;
+          orientation="vertical";
+          layout_height="wrap_content";
+          layout_margin="10dp";
+          layout_width="match_parent";
+
+          {
+            LinearLayout;
+            orientation="horizontal";
+            layout_height="wrap_content";
+            layout_margin="10dp";
+            layout_width="match_parent";
+            {
+              TextView;
+              Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+              textSize = TextStyles().big,
+              textColor=ColorStyles().black,
+              layout_weight="1";
+              text="省流模式";
+            };
+            {
+              Switch;
+              switchMinWidth=ButtonStyles().width_big;
+              id="loadImg";
+            };
+          };
+
+          {
+            LinearLayout;
+            orientation="horizontal";
+            layout_height="wrap_content";
+            layout_margin="10dp";
+            layout_width="match_parent";
+            {
+              TextView;
+              Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+              textSize = TextStyles().big,
+              textColor=ColorStyles().black,
+              layout_weight="1";
+              text="搜索精准匹配";
+            };
+            {
+              Switch;
+              switchMinWidth=ButtonStyles().width_big;
+              id="searchMode";
+            };
+          };
+          {
+            LinearLayout;
+            orientation="horizontal";
+            layout_height="wrap_content";
+            layout_margin="10dp";
+            layout_width="match_parent";
+            {
+              TextView;
+              Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+              textSize = TextStyles().big,
+              textColor=ColorStyles().black,
+              layout_weight="1";
+              text="播放自动全屏";
+            };
+            {
+              Switch;
+              switchMinWidth=ButtonStyles().width_big;
+              id="autoFullScreenout";
+            };
+          };
+          {
+            LinearLayout;
+            orientation="horizontal";
+            layout_height="wrap_content";
+            layout_margin="10dp";
+            layout_width="match_parent";
+            {
+              TextView;
+              Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+              textSize = TextStyles().big,
+              textColor=ColorStyles().black,
+              layout_weight="1";
+              text="播放进度显示";
+            };
+            {
+              Switch;
+              switchMinWidth=ButtonStyles().width_big;
+              id="showPlayProgress";
+            };
+          };
+          {
+            LinearLayout;
+            orientation="horizontal";
+            layout_height="wrap_content";
+            layout_margin="10dp";
+            layout_width="match_parent";
+            {
+              TextView;
+              Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+              textSize = TextStyles().big,
+              textColor=ColorStyles().black,
+              layout_weight="1";
+              text="播放倍速显示";
+            };
+            {
+              Switch;
+              switchMinWidth=ButtonStyles().width_big;
+              id="showPlayRateout";
+            };
+          };
+
+          {
+            LinearLayout;
+            orientation="horizontal";
+            layout_height="wrap_content";
+            layout_margin="10dp";
+            layout_width="match_parent";
+            Visibility=8,
+            {
+              TextView;
+              Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+              textSize = TextStyles().big,
+              textColor=ColorStyles().black,
+              layout_weight="1";
+              text="播放软解码优先";
+            };
+            {
+              Switch;
+              switchMinWidth=ButtonStyles().width_big;
+              id="isijkout";
+            };
+          };
+
+        };
+      },
+      {
+        MaterialCardView,
+        layout_gravity = "center",
+        layout_width = "fill",
+        layout_height = "wrap",
+        layout_margin=MarginStyles().medium,
+        cardElevation = "1dp",
+        radius = "5dp",
+        cardBackgroundColor="#ffffffff",--卡片背景色
+        {
+          LinearLayout,
+          orientation = "vertical",
+          layout_width = "fill",
+          layout_height = "wrap",
+          layout_margin=MarginStyles().medium,
+
+          {
+            TextView,
+            text = "缓存清理",
+            layout_margin =MarginStyles().tiny ,
+            id="clearplayout",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+          },
+
+          {
+            TextView,
+            text = "问题反馈",
+            layout_marginTop =MarginStyles().big,
+            layout_margin =MarginStyles().tiny,
+            id="queryout",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+          },
+
+          {
+            TextView,
+            text = "关注作者",
+            layout_marginTop =MarginStyles().big,
+            layout_margin =MarginStyles().tiny,
+            id="heartAuthorout",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+          },
+          {
+            TextView,
+            text = "检查更新",
+            layout_marginTop =MarginStyles().big,
+            layout_margin =MarginStyles().tiny,
+            id="checkUpdateout",
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+          },
+
+        }
+      },
+      {
+        MaterialCardView,
+        layout_gravity = "center",
+        layout_width = "fill",
+        layout_height = "wrap",
+        layout_margin=MarginStyles().medium,
+        cardElevation = "1dp",
+        radius = "5dp",
+        cardBackgroundColor="#ffffffff",--卡片背景色
+        {
+          LinearLayout,
+          orientation = "vertical",
+          layout_width = "fill",
+          layout_height = "wrap",
+          layout_margin=MarginStyles().medium,
+          {
+            TextView,
+            text = "关于",
+            layout_margin =MarginStyles().tiny,
+            layout_marginBottom=0,
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().big,
+            textColor=ColorStyles().black,
+          },
+          {
+            TextView,
+            text = "本软件只提供聚合展示功能，所有资源均来自网上，软件不参与任何制作，上传，储存，下载等内容。\n软件仅供学习参考，请于安装后24小时内删除。",
+            layout_margin =MarginStyles().tiny ,
+            ellipsize = "marquee",
+            Selected = true,
+            layout_marginTop =0,
+            Typeface = Typeface.defaultFromStyle(Typeface.BOLD),
+            textSize = TextStyles().medium,
+            --textColor = ColorStyles().gray
+          }
+
+        }
+      }
+    }
+  }
+};

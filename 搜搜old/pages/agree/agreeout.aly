@@ -1,0 +1,65 @@
+{
+  LinearLayout;
+  layout_height="fill";
+  layout_width="fill";
+  orientation="vertical";
+  backgroundColor=ColorStyles().white;
+
+  {
+    ScrollView;
+    layout_width="fill";
+    verticalScrollBarEnabled=false;
+    overScrollMode=2;
+    layout_height="fill";
+    layout_weight=1,
+    {
+      LinearLayout;
+      orientation="vertical";
+      background="#ffffff";
+      layout_width="fill";
+      layout_height="fill";
+
+      {
+        TextView,
+        id="agreement_txt";
+        text=Html.fromHtml([[<font color='#4D4D4D'><strong>用户协议</strong></font><br/><br/>
+
+<font color='#6D6D6D'>&nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;欢迎您使用搜搜，使用本应用前，您必须阅读并遵守协议内容，因违反协议内容导致的法律纠纷，本人不承担任何责任。</font><br/>
+<font color='#6D6D6D'>&nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;本应用内所有展示内容均采集爬取自网络，知识产权仍归素材原作者所有。</font><br/>
+<font color='#6D6D6D'>&nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;本应用内容来自第三方网站，并不涉及任何商业行为，如有侵权，您可以发送信息至1172285453@qq.com，本人将会于24小时内处理。</font><br/>
+<font color='#6D6D6D'>&nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;本应用仅作学习交流，请于24小时内删除。</font><br/><br/><br/><br/><br/>
+
+]]);
+        textSize=TextStyles().big,
+        layout_height="wrap_content";
+        layout_width="fill";
+        layout_margin=MarginStyles().big,
+
+      },
+    },
+  },
+
+
+  {
+    MaterialButton;
+    backgroundColor=ColorStyles().blue;
+    layout_width="match_parent";
+    id="agreeButton";
+    layout_height=ButtonStyles().height_large,
+    textSize=TextStyles().big,
+    text="我已阅读并同意"
+  };
+
+  {
+    Button;
+    layout_width="match_parent";
+    id="disagreeButton";
+    layout_height=ButtonStyles().height_large,
+    text="不同意并退出",
+    textSize=TextStyles().big,
+    textColor=ColorStyles().gray,
+    layout_marginBottom=MarginStyles().big,
+    backgroundColor=ColorStyles().transparent
+  };
+
+}

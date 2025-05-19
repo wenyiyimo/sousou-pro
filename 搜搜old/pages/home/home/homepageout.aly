@@ -1,0 +1,267 @@
+{
+  LinearLayout;
+  layout_height="fill";
+  layout_width="fill";
+  orientation="vertical";
+  background="#ffffffff",
+  {
+    LinearLayout,--线性布局
+    orientation="vertical",--布局方向
+    layout_width="fill",--布局宽度
+    layout_height="wrap",--布局高度
+    background="#ffffffff",--布局背景
+    paddingBottom=MarginStyles().medium,
+    elevation=ElevationStyles().medium,--阴影层次
+    {
+      LinearLayout,--线性布局
+      --layout_marginTop="4%h",--布局顶距
+      orientation="horizontal",--布局方向
+      layout_width="fill",--布局宽度
+      --layout_height="50dp",--布局高度
+      gravity="left|center",--重力居左｜置中
+      {
+        CardView,--卡片框控件
+        layout_height=ButtonStyles().height_medium,--布局高度
+        layout_width="50%w",
+        layout_margin=MarginStyles().small,
+        layout_marginLeft=MarginStyles().medium,
+        cardElevation="0dp",--卡片提升
+        cardBackgroundColor=ColorStyles().light,--卡片背景色
+        radius=RadiusStyles().large,
+        --layout_weight=1,
+        -- id="navSearchHome",
+        {
+          LinearLayout,--线性布局
+
+          orientation="horizontal",--水平方向
+          layout_width="fill",--布局宽度
+          layout_height="fill",--布局高度
+          gravity="left|center",--重力居左｜置中
+          {
+            ImageView,--图片框控件
+            layout_width=ImageStyles().width_tiny,--布局宽度
+            layout_height=ImageStyles().height_tiny,--布局高度
+            src="static/img/home/__ic_search.png",--视图路径
+            --colorFilter="#333333",--图片颜色
+            layout_marginLeft=MarginStyles().big,
+            layout_marginRight=MarginStyles().small,
+            onClick=function()
+              activity.newActivity("pages/search/home/home").overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out)
+
+            end
+          },
+          {
+            TextView,--文本框控件
+            text="搜索一下...",--文本内容
+            textSize=TextStyles().medium,
+            --textColor="#ffffff",--文本颜色
+            layout_weight=1;
+            onClick=function()
+              activity.newActivity("pages/search/home/home").overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out)
+            end
+          },
+
+
+          {
+            LinearLayout;
+            layout_width="1";
+            layout_gravity="center";
+            backgroundColor="0xFF000000";
+            layout_height="15dp";
+            Visibility=8,
+          };
+          {
+            RippleLayout;
+            layout_width="66dp";
+            layout_height="fill";
+            Visibility=8,
+            {
+              TextView;
+              layout_width="fill";
+              text="设置";
+              layout_height="fill";
+              gravity="center";
+              textSize="13dp";
+              id="home_set_out";
+            };
+          };
+
+        },--线性布局 结束
+      },--卡片框控件 结束
+
+      {
+        ImageView,--图片框控件
+        layout_marginRight=MarginStyles().big,--布局右距
+        layout_gravity="right|center",--重力居中
+        layout_width=ImageStyles().width_medium,--布局宽度
+        layout_height=ImageStyles().height_medium,--布局高度
+        src="static/img/home/web1.png",--视图路径
+        --colorFilter=ColorStyles().grayer,
+        Visibility=8,
+        onClick=function()
+          activity.newActivity("pages/webview/webview")--跳转页面
+        end
+      },
+
+      {
+        ImageView,--图片框控件
+        layout_marginRight=MarginStyles().big,--布局右距
+        layout_gravity="right|center",--重力居中
+        layout_width=ImageStyles().width_medium,--布局宽度
+        layout_height=ImageStyles().height_medium,--布局高度
+        src="static/img/home/sy.png",--视图路径
+        Visibility=8;
+        --colorFilter=ColorStyles().grayer,
+        onClick=function()
+          activity.newActivity("pages/calendar/calendar")--跳转页面
+        end
+      },
+      {
+        ImageView,--图片框控件
+        layout_gravity="right|center",--重力居中
+        layout_width=ImageStyles().width_medium,--布局宽度
+        layout_height=ImageStyles().height_medium,--布局高度
+        src="static/img/home/down.png",--视图路径
+        --colorFilter=ColorStyles().grayer,
+        Visibility=8;
+        layout_marginRight=MarginStyles().big,--布局右距
+        onClick=function()
+          activity.newActivity("pages/download/download")--跳转页面
+        end
+      },
+
+      {
+        ImageView,--图片框控件
+        layout_gravity="right|center",--重力居中
+        layout_width=ImageStyles().width_medium,--布局宽度
+        layout_height=ImageStyles().height_medium,--布局高度
+        src="static/img/home/class.png",--视图路径
+        --colorFilter=ColorStyles().grayer,
+        Visibility=8;
+        layout_marginRight=MarginStyles().big,--布局右距
+        onClick=function()
+          activity.newActivity("pages/sougou/sougou")--跳转页面
+        end
+      },
+      {
+        RecyclerView;
+        layout_width="fill",--布局宽度
+        layout_height="wrap",--布局高度
+        id="menuout";
+        -- layout_marginTop="15dp",
+
+        layout_width="match_parent",--布局宽度
+        --layout_marginTop="20dp";
+
+
+
+      },
+
+    },--线性布局 结束
+  },--线性布局 结束
+
+
+  {
+    LinearLayout;
+    layout_height="fill";
+    orientation="vertical";
+    layout_width="fill";
+    id="homeBodyRoot",
+    --[[    {
+      ScrollView,--纵向滑动控件
+      layout_width="fill",--布局宽度
+      layout_height="fill",--布局高度
+      overScrollMode=View.OVER_SCROLL_NEVER,--隐藏圆弧阴影
+      verticalScrollBarEnabled=false,--隐藏纵向滑条]]
+    {
+      LinearLayout,--线性布局
+      -- id="homeBodyout",
+      -- layout_marginTop="10dp",--布局顶距
+      orientation="vertical",--布局方向
+      layout_width="fill",--布局宽度
+      layout_height="fill",--布局高度
+      --轮播图
+      layout_height="wrap_content",
+
+
+
+
+
+      --{
+      -- ViewPager2,
+      --  id="lunboout",
+      --  layout_width="wrap",
+      --   layout_height=getLunboHeight()
+      --  },
+      {
+        MaterialCardView,
+        layout_margin=MarginStyles().medium,
+        layout_width="fill",
+        layout_height=ButtonStyles().height_big_little,
+        cardElevation=RadiusStyles().small,
+        Radius=RadiusStyles().small,
+        padding=MarginStyles().small,
+        id= "home_history_card_out",
+        {
+          LinearLayout,--线性布局
+          orientation="horizontal",--水平方向
+          layout_width="fill",--布局宽度
+          layout_height="fill",--布局高度
+          backgroundColor=ColorStyles().little_blue,
+          {
+            TextView,
+            text="继续播放：暂无",
+            id="home_history_out",
+            layout_height="fill",
+            layout_width="fill",
+            gravity="left|center",
+            textColor=ColorStyles().white,
+            textSize=TextStyles().big,
+            singleLine = true,
+            ellipsize = "marquee",
+            selected = true,
+            layout_marginLeft=MarginStyles().small,
+            layout_marginRight=MarginStyles().small,
+          }
+        }
+      },
+      --[[   {
+          LinearLayout,--线性布局
+          id="homeBodyout",
+          -- layout_marginTop="10dp",--布局顶距
+          orientation="vertical",--布局方向
+          layout_width="fill",--布局宽度
+          layout_height="fill",--布局高度
+          --轮播图
+          layout_height="wrap_content",
+
+
+]]
+      {
+        RecyclerView,
+        --  layout_marginTop="10dp",
+        layout_width = "fill", -- 布局宽度
+        layout_height = "wrap", -- 布局高度
+        --  layout_weight=1,
+        id = "siteout"
+      },
+
+      {
+        RecyclerView,
+        layout_width = "fill", -- 布局宽度
+        layout_height = "wrap", -- 布局高度
+        id = "classout"
+      },
+      {
+        RecyclerView,
+        layout_width = "fill", -- 布局宽度
+        layout_height = "wrap", -- 布局高度
+        id = "bodyout"
+      },
+
+      -- }
+    }
+    -- }
+  };
+
+};

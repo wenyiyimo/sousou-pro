@@ -1,0 +1,57 @@
+{
+  LinearLayout,
+  layout_height = "fill",
+  layout_width = "fill",
+  backgroundColor = ColorStyles().white,
+  orientation = 'vertical',
+  {
+    LinearLayout,
+    orientation = "horizontal",
+    layout_width = "fill",
+    layout_height = "wrap",
+    {
+      RecyclerView,
+      layout_width = "fill", -- 布局宽度
+      layout_height = "wrap", -- 布局高度
+      layout_weight=1,
+      id = "siteout"
+    },
+    {
+      ImageView,
+      src = "static/img/more/menu.png",
+      layout_marginRight = MarginStyles().medium,
+      colorFilter = ColorStyles().blue,
+      scaleType = "fitXY",
+      layout_width = "25dp",
+      layout_gravity = "right|center",
+      layout_marginLeft = "5dp",
+      id = "moreMenuout",
+      layout_height = "25dp"
+    }
+  },
+  {
+    RecyclerView,
+    layout_width = "fill", -- 布局宽度
+    layout_height = "wrap", -- 布局高度
+    id = "classout"
+  },
+
+  {
+    RecyclerView,
+    layout_width = "fill", -- 布局宽度
+    layout_height = "wrap", -- 布局高度
+    id = "bodyout"
+  },
+  {
+    LinearLayout,
+    layout_marginTop = "15%h",
+    layout_width = "120dp",
+    layout_height = "120dp",
+    orientation = "vertical",
+    layout_gravity = "center",
+    id = 'moreLoading',
+    BackgroundDrawable = setProgress(ColorStrings().blue)
+  }
+}
+
+

@@ -1,0 +1,5 @@
+appname = "搜搜历史版"
+packagename = "com.sousou"
+appcode = "20250519"
+appver = "1.0"
+appurl = "https://raw.githubusercontent.com/wenyiyimo/sousou-pro/refs/heads/main/sousouold.json"
