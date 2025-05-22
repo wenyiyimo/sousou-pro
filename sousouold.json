@@ -1,6 +1,7 @@
 {
   "appver": "1.0",
   "appcode": "20250519",
+  "type": "app",
   "url": "https://raw.githubusercontent.com/wenyiyimo/sousou-pro/refs/heads/main/搜搜old.zip",
   "msg": "更新：初始化站源仓库"
 }
