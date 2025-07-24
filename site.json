@@ -1,6 +1,6 @@
 {
-  "version": "20250605",
+  "version": "20250724",
   "type": "site",
   "url": "https://raw.githubusercontent.com/wenyiyimo/sousou-pro/refs/heads/main/wenmo.sousou",
-  "msg": "增加磁力源搜磁力"
+  "msg": "修复部分规则"
 }
